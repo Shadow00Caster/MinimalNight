@@ -1,0 +1,52 @@
+name: Update GitHub Pages with External File
+
+on:
+  schedule:
+    # Runs daily at midnight UTC
+    - cron: '0 0 * * *'
+
+jobs:
+  update-page:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Fetch the external file
+      - name: Download external file
+        run: |
+          curl -o MinimalNight.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/refs/heads/master/MinimalNight.css
+
+      # Step 3: Update the GitHub Pages content
+      - name: Update GitHub Pages content
+        run: |
+          # Define the target page file path (adjust as needed)
+          TARGET_PAGE="docs/MinimalNightPage.html"
+
+          # Create the HTML page with the CSS content
+          echo "<!DOCTYPE html>" > $TARGET_PAGE
+          echo "<html lang='en'>" >> $TARGET_PAGE
+          echo "<head>" >> $TARGET_PAGE
+          echo "  <meta charset='UTF-8'>" >> $TARGET_PAGE
+          echo "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" >> $TARGET_PAGE
+          echo "  <title>Minimal Night Theme</title>" >> $TARGET_PAGE
+          echo "  <style>" >> $TARGET_PAGE
+          cat MinimalNight.css >> $TARGET_PAGE
+          echo "  </style>" >> $TARGET_PAGE
+          echo "</head>" >> $TARGET_PAGE
+          echo "<body>" >> $TARGET_PAGE
+          echo "  <h1>Minimal Night Theme</h1>" >> $TARGET_PAGE
+          echo "  <p>This page is styled using the Minimal Night Theme CSS.</p>" >> $TARGET_PAGE
+          echo "</body>" >> $TARGET_PAGE
+          echo "</html>" >> $TARGET_PAGE
+
+      # Step 4: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/MinimalNightPage.html
+          git commit -m "Update MinimalNightPage.html with latest CSS"
+          git push

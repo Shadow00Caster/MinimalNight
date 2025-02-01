@@ -25,36 +25,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Ensure the GitHub Pages branch exists
-      - name: Ensure GitHub Pages branch exists
-        run: |
-          # Set the branch name for GitHub Pages
-          PAGES_BRANCH="gh-pages"
-
-          # Check if the branch exists
-          if ! git show-ref --verify --quiet refs/heads/$PAGES_BRANCH; then
-            echo "GitHub Pages branch does not exist. Creating it..."
-            git checkout --orphan $PAGES_BRANCH
-            git rm -rf .
-            echo "# GitHub Pages" > README.md
-            git add README.md
-            git commit -m "Initialize GitHub Pages branch"
-            git push origin $PAGES_BRANCH
-          else
-            echo "GitHub Pages branch exists."
-          fi
-
-      # Step 4: Switch to the GitHub Pages branch
-      - name: Switch to GitHub Pages branch
-        run: |
-          git checkout $PAGES_BRANCH
-
-      # Step 5: Fetch the external file
+      # Step 3: Fetch the external file
       - name: Download external file
         run: |
           curl -o MinimalNight.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/refs/heads/master/MinimalNight.css
 
-      # Step 6: Update the GitHub Pages content
+      # Step 4: Update the GitHub Pages content
       - name: Update GitHub Pages content
         run: |
           # Define the target page file path
@@ -77,11 +53,11 @@ jobs:
           echo "</body>" >> $TARGET_PAGE
           echo "</html>" >> $TARGET_PAGE
 
-      # Step 7: Commit and push changes
+      # Step 5: Commit and push changes
       - name: Commit and push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git add MinimalNightPage.html
           git commit -m "Update MinimalNightPage.html with latest CSS" || echo "No changes to commit"
-          git push origin $PAGES_BRANCH
+          git push origin main

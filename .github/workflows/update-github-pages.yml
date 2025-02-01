@@ -1,4 +1,4 @@
-name: Update GitHub Pages with External File
+name: Update GitHub Pages with External CSS Files
 
 on:
   # Trigger on push to the main branch
@@ -11,7 +11,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  update-page:
+  update-css-files:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,39 +25,22 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Fetch the external file
-      - name: Download external file
+      # Step 3: Fetch the first external CSS file
+      - name: Download MinimalNight.css
         run: |
           curl -o MinimalNight.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/refs/heads/master/MinimalNight.css
 
-      # Step 4: Update the GitHub Pages content
-      - name: Update GitHub Pages content
+      # Step 4: Fetch the second external CSS file
+      - name: Download Sidebar_Icons.css
         run: |
-          # Define the target page file path
-          TARGET_PAGE="MinimalNightPage.html"
-
-          # Create the HTML page with the CSS content
-          echo "<!DOCTYPE html>" > $TARGET_PAGE
-          echo "<html lang='en'>" >> $TARGET_PAGE
-          echo "<head>" >> $TARGET_PAGE
-          echo "  <meta charset='UTF-8'>" >> $TARGET_PAGE
-          echo "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" >> $TARGET_PAGE
-          echo "  <title>Minimal Night Theme</title>" >> $TARGET_PAGE
-          echo "  <style>" >> $TARGET_PAGE
-          cat MinimalNight.css >> $TARGET_PAGE
-          echo "  </style>" >> $TARGET_PAGE
-          echo "</head>" >> $TARGET_PAGE
-          echo "<body>" >> $TARGET_PAGE
-          echo "  <h1>Minimal Night Theme</h1>" >> $TARGET_PAGE
-          echo "  <p>This page is styled using the Minimal Night Theme CSS.</p>" >> $TARGET_PAGE
-          echo "</body>" >> $TARGET_PAGE
-          echo "</html>" >> $TARGET_PAGE
+          mkdir -p Addons
+          curl -o Addons/Sidebar_Icons.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/master/Addons/Sidebar_Icons.css
 
       # Step 5: Commit and push changes
       - name: Commit and push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git add MinimalNightPage.html
-          git commit -m "Update MinimalNightPage.html with latest CSS" || echo "No changes to commit"
+          git add MinimalNight.css Addons/Sidebar_Icons.css
+          git commit -m "Update CSS files with latest versions" || echo "No changes to commit"
           git push origin main

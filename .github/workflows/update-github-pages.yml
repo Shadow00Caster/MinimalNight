@@ -19,7 +19,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Ensure the GitHub Pages branch exists
+      # Step 2: Set Git user name and email
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Step 3: Ensure the GitHub Pages branch exists
       - name: Ensure GitHub Pages branch exists
         run: |
           # Set the branch name for GitHub Pages
@@ -38,17 +44,17 @@ jobs:
             echo "GitHub Pages branch exists."
           fi
 
-      # Step 3: Switch to the GitHub Pages branch
+      # Step 4: Switch to the GitHub Pages branch
       - name: Switch to GitHub Pages branch
         run: |
           git checkout $PAGES_BRANCH
 
-      # Step 4: Fetch the external file
+      # Step 5: Fetch the external file
       - name: Download external file
         run: |
           curl -o MinimalNight.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/refs/heads/master/MinimalNight.css
 
-      # Step 5: Update the GitHub Pages content
+      # Step 6: Update the GitHub Pages content
       - name: Update GitHub Pages content
         run: |
           # Define the target page file path
@@ -71,11 +77,9 @@ jobs:
           echo "</body>" >> $TARGET_PAGE
           echo "</html>" >> $TARGET_PAGE
 
-      # Step 6: Commit and push changes
+      # Step 7: Commit and push changes
       - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add MinimalNightPage.html
           git commit -m "Update MinimalNightPage.html with latest CSS" || echo "No changes to commit"
           git push origin $PAGES_BRANCH

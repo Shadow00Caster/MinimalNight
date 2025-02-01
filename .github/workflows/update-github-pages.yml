@@ -1,6 +1,11 @@
 name: Update GitHub Pages with External File
 
 on:
+  # Trigger on push to the main branch
+  push:
+    branches:
+      - main
+  # Trigger on a recurring schedule
   schedule:
     # Runs daily at midnight UTC
     - cron: '0 0 * * *'
@@ -14,16 +19,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Fetch the external file
+      # Step 2: Ensure the GitHub Pages branch exists
+      - name: Ensure GitHub Pages branch exists
+        run: |
+          # Set the branch name for GitHub Pages
+          PAGES_BRANCH="gh-pages"
+
+          # Check if the branch exists
+          if ! git show-ref --verify --quiet refs/heads/$PAGES_BRANCH; then
+            echo "GitHub Pages branch does not exist. Creating it..."
+            git checkout --orphan $PAGES_BRANCH
+            git rm -rf .
+            echo "# GitHub Pages" > README.md
+            git add README.md
+            git commit -m "Initialize GitHub Pages branch"
+            git push origin $PAGES_BRANCH
+          else
+            echo "GitHub Pages branch exists."
+          fi
+
+      # Step 3: Switch to the GitHub Pages branch
+      - name: Switch to GitHub Pages branch
+        run: |
+          git checkout $PAGES_BRANCH
+
+      # Step 4: Fetch the external file
       - name: Download external file
         run: |
           curl -o MinimalNight.css https://raw.githubusercontent.com/MonolithOrchids/MinimalNightTheme/refs/heads/master/MinimalNight.css
 
-      # Step 3: Update the GitHub Pages content
+      # Step 5: Update the GitHub Pages content
       - name: Update GitHub Pages content
         run: |
-          # Define the target page file path (adjust as needed)
-          TARGET_PAGE="docs/MinimalNightPage.html"
+          # Define the target page file path
+          TARGET_PAGE="MinimalNightPage.html"
 
           # Create the HTML page with the CSS content
           echo "<!DOCTYPE html>" > $TARGET_PAGE
@@ -42,11 +71,11 @@ jobs:
           echo "</body>" >> $TARGET_PAGE
           echo "</html>" >> $TARGET_PAGE
 
-      # Step 4: Commit and push changes
+      # Step 6: Commit and push changes
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/MinimalNightPage.html
-          git commit -m "Update MinimalNightPage.html with latest CSS"
-          git push
+          git add MinimalNightPage.html
+          git commit -m "Update MinimalNightPage.html with latest CSS" || echo "No changes to commit"
+          git push origin $PAGES_BRANCH
